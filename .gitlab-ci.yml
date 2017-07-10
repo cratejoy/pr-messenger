@@ -1,0 +1,21 @@
+image: gitlab.cratejoyeng.com:4567/cratejoy/kubernetes-deploy
+
+variables:
+  # Application deployment domain
+  DOCKER_HOST: tcp://docker-builder:2375
+  DOCKER_DRIVER: overlay
+
+stages:
+  - build
+  - review
+  - cleanup
+
+build:
+  stage: build
+  script:
+    - docker build -t "$CI_REGISTRY_IMAGE:latest" .
+    - docker login -u $CI_REGISTRY_USER -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+    # TODO: Use the internal DNS instead. Will need to setup insecure registry config.
+    - docker push "$CI_REGISTRY_IMAGE:latest"
+  only:
+    - master
