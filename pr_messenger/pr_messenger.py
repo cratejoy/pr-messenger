@@ -22,9 +22,25 @@ def find_pr_and_add_comment(client, org, repo, branch, comment, **kwargs):
     print("No PR found for branch")
 
 
-def add_sha_status(client, org, repo, sha, status_name, status_state, status_url, status_description, **kwargs):
+def add_sha_status(
+        client,
+        org,
+        repo,
+        sha,
+        status_name,
+        status_state,
+        status_url,
+        status_description,
+        only_update_pending,
+        **kwargs):
     grepo = client.get_repo('{}/{}'.format(org, repo))
     commit = grepo.get_commit(sha)
+
+    if only_update_pending:
+        existing_status = next((status for status in commit.get_statuses() if status.context == status_name))
+        if existing_status and existing_status.state != "pending":
+            print("Skipping status not in pending")
+            return
 
     status = commit.create_status(
         status_state,
@@ -53,6 +69,7 @@ def main():
     parser.add_argument('--status_state', required=False)
     parser.add_argument('--status_url', required=False)
     parser.add_argument('--status_description', required=False)
+    parser.add_argument("--only-update-pending", dest='only_update_pending', action='store_true', default=False, required=False)
 
     cli_args = parser.parse_args()
 
