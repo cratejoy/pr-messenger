@@ -18,6 +18,6 @@ pr-messenger \
   --repo pr-messenger \
   --sha 123asf3 \
   --status_name "ci/test" \
-  --status-state "success" \
+  --status_state "success" \
   --status_description "Your tests passed"
 ```
